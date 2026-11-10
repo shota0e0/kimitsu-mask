@@ -25,22 +25,23 @@
 <main class="shell">
 <header><div><h1>機密情報黒塗くん <span class="version">v0.4</span></h1></div><div class="header-right"><span class="local">ローカル処理</span><span class="badge" id="numericBadge" hidden>数値ダミー化 ON</span><details class="settings" id="advancedSettings"><summary>詳細設定</summary><div class="settings-content">
 <section><h3>マーカー・置換表 <span id="ruleCount" class="tag">0件</span></h3><div id="rules" class="rulelist"></div><div class="controls"><button type="button" id="clearRules">マーカーとルールをクリア</button><button type="button" id="scan">候補だけを探す</button><button type="button" id="demo">架空サンプル</button></div><p class="small">全文マークの解除は同じ文字列すべて、範囲マークの解除はその1か所に適用します。</p></section>
+<section><h3>作業データの消去</h3><button type="button" id="clear" class="danger">全消去…</button><p class="small">原文・置換表・追加辞書・復元作業を確認して消去します。</p></section>
 <section><h3>追加辞書</h3><div class="fields three"><div><label class="label" for="dictTerm">検出する語句</label><input type="text" id="dictTerm" maxlength="100" placeholder="例：架空製作所"></div><div><label class="label" for="dictType">カテゴリ</label><select id="dictType"><option value="company">企業</option><option value="person">人物</option><option value="secret">機密事項</option></select></div><button type="button" id="dictAdd">追加</button></div><div id="dictList" class="list"></div><div class="controls"><button type="button" id="dictExport">辞書をJSON保存</button><button type="button" id="dictImportBtn">JSONを読み込む</button><input class="hidden" type="file" id="dictImport" accept=".json,application/json"></div><p class="small">保存先はブラウザーのダウンロード設定に従います。画面を閉じると辞書は消えます。JSON自体も機密情報として扱ってください。</p></section>
 <section id="numericCard"><h3>数値のダミー化</h3><label class="checkline"><input type="checkbox" id="numericEnabled">単位付きの数値をダミー化する</label><div class="fields controls"><div><label class="label" for="numericMode">変換方式</label><select id="numericMode"><option value="ratio">一律倍率</option><option value="independent">個別倍率</option></select></div><div><label class="label">今回の設定</label><div class="tag" id="numericInfo">初回ON時に倍率を生成</div></div></div><div class="controls"><button type="button" id="reroll">別の乱数にする</button></div><p class="small">初期値はOFFです。ONの間はタブに関係なく適用します。日付・ID・単位なし数値などは原則残り、数値は復元できません。倍率から元データを推測できる場合があります。</p></section>
 </div></details></div></header>
 <nav class="tabs" role="tablist" aria-label="作業"><button type="button" id="tabText" class="on" role="tab" aria-selected="true" aria-pressed="true" aria-controls="blackPanel">黒塗り</button><button type="button" id="tabRestore" role="tab" aria-selected="false" aria-pressed="false" aria-controls="restorePanel">復元</button></nav>
-<div class="main-controls"><button type="button" id="autoAnonymize" class="primary">ワンクリック匿名化</button><button type="button" id="clear" class="danger">全消去</button><p class="status" id="status" role="status"></p><span id="autoSummary" hidden></span></div>
+<div class="main-controls"><button type="button" id="autoAnonymize" class="primary">ワンクリック匿名化</button><p class="status" id="status" role="status"></p><span id="autoSummary" hidden></span></div>
 <section class="candidate-panel" id="candidatePanel" hidden><h3>検出候補・要確認</h3><div class="list" id="candidates"></div></section>
 <div class="panes" id="blackPanel" role="tabpanel" aria-labelledby="tabText">
 <section class="pane"><div class="pane-head"><h2><label for="source">原文</label></h2><div class="source-views" role="group" aria-label="原文の操作"><button type="button" id="sourceEditMode" aria-pressed="true" aria-controls="source">入力・範囲選択</button><button type="button" id="sourceRemoveMode" aria-pressed="false" aria-controls="markReview" disabled>マーク解除</button></div></div>
 <div class="source-wrap" id="sourceWrap"><div class="source-underlay" id="sourceUnderlay" aria-hidden="true"><div class="highlight-content" id="highlightContent"></div></div><textarea id="source" spellcheck="false" placeholder="メール・カルテなどを貼り付け"></textarea><div class="mark-review" id="markReview" aria-label="原文のマーク解除" aria-hidden="true" hidden></div></div>
-<div class="manual-toolbar" id="manualToolbar" hidden><strong id="selection"></strong><button type="button" id="markSelection" class="primary">選択範囲を黒塗り</button><details class="manual-options" id="manualOptions"><summary>詳細</summary><div class="manual-options-content"><div class="fields"><div><label class="label" for="manualType">カテゴリ</label><select id="manualType"><option value="secret">機密事項</option><option value="person">人物</option><option value="company">企業</option><option value="contact">連絡先</option></select></div><div><label class="label" for="manualAlias">置換名（任意）</label><input type="text" id="manualAlias" maxlength="60" placeholder="空欄なら◆非公開情報A◆など"></div></div><div class="controls"><button type="button" id="addSelection">同じ文字列を全文一括マーク</button></div><p class="small">同じ文字列は既存の仮名を共用します。◆...◆／【...】形式は現在の置換表で復元できます。</p></div></details></div>
+<div class="manual-toolbar" id="manualToolbar" hidden><strong id="selection"></strong><button type="button" id="markSelection" class="primary">同じ文字列を全文黒塗り</button><details class="manual-options" id="manualOptions"><summary>詳細</summary><div class="manual-options-content"><div class="fields"><div><label class="label" for="manualType">カテゴリ</label><select id="manualType"><option value="secret">機密事項</option><option value="person">人物</option><option value="company">企業</option><option value="contact">連絡先</option></select></div><div><label class="label" for="manualAlias">置換名（任意）</label><input type="text" id="manualAlias" maxlength="60" placeholder="空欄なら◆非公開情報A◆など"></div></div><div class="controls"><button type="button" id="addSelection">選択したこの箇所だけ黒塗り</button></div><p class="small">通常ボタンは全文の完全一致、この詳細ボタンは選択箇所だけに適用します。同じ文字列は既存の仮名を共用します。◆...◆／【...】形式は現在の置換表で復元できます。</p></div></details></div>
 <div class="pane-foot"><span id="length">0文字</span><span id="markerNotice">入力で追加／マーク解除で色付きの文字を解除</span></div></section>
-<section class="pane"><div class="pane-head"><h2><label for="output">匿名化文</label></h2><button type="button" id="copy" class="primary">コピー</button></div><div class="notice" id="previewNotice" hidden><span id="previewReason"></span><button type="button" id="regeneratePreview">再生成して編集を上書き</button></div><textarea id="output" spellcheck="false" placeholder="匿名化した文章が表示されます"></textarea><p class="hint">コピー前に機密情報の残留を目視確認してください。検出は補助であり、AIへの入力許可を保証しません。</p></section>
+<section class="pane"><div class="pane-head"><h2><label for="output">匿名化文</label></h2><div class="row"><button type="button" id="saveTxt">TXT保存</button><button type="button" id="copy" class="primary">コピー</button></div></div><div class="notice" id="previewNotice" hidden><span id="previewReason"></span><button type="button" id="regeneratePreview">再生成して編集を上書き</button></div><textarea id="output" spellcheck="false" placeholder="匿名化した文章が表示されます"></textarea><p class="hint">コピー・TXT保存前に機密情報の残留を目視確認してください。TXTの保存先はブラウザー設定に従い、復元には現在の置換表が必要です。検出は補助で、AIへの入力許可を保証しません。</p></section>
 </div>
 <div class="panes" id="restorePanel" role="tabpanel" aria-labelledby="tabRestore" hidden>
-<section class="pane restore-pane" id="restoreSourcePane"><div class="pane-head"><h2><label for="restoreInput">AIの回答</label></h2><button type="button" id="restore" class="primary">置換表から復元</button></div><textarea id="restoreInput" spellcheck="false" placeholder="◆担当者A◆や◆取引先A◆などを含む回答を貼り付け"></textarea><div class="restore-meta" id="restoreSourceMeta"><p class="hint">回答と置換表を確認して復元してください。</p></div></section>
-<section class="pane restore-pane" id="restoreResultPane"><div class="pane-head"><h2><label for="restoredOutput">復元結果</label></h2><button type="button" id="copyRestored" class="primary" disabled>コピー</button></div><textarea id="restoredOutput" spellcheck="false" placeholder="回答や置換表を変えたら再復元してください"></textarea><div class="restore-meta" id="restoreResultMeta"><p class="status" id="restoreFreshness" role="status"></p><details class="restore-notice" id="restoreNoticeDetails"><summary id="restoreNoticeSummary" aria-live="polite">復元の説明</summary><div class="restore-notice-popup"><p class="status" id="restoreReasonDetail"></p><p class="status unknown-notice" id="unknownTokens" role="status"></p><p class="hint">未登録・壊れたトークンや囲み記号のない識別子は自動復元しません。回答本文からの消失も自動補完しません。「復元確認用識別子」で始まる見出し行から次の明示的な見出し（例：「## 議事録本文」「本文：」）までを識別子一覧とみなし、本文の出現に数えません。◆や【】を含む行は次の見出しとみなさず、一覧の除外を続けます。自由な書式・入れ子・表記変更は判定できない場合があります。消失確認は同じ置換表で最後にコピーした匿名化文（なければ現在の匿名化文）が対象です。独自別名・数値は復元できない場合があります。警告を確認したコピーは今回だけ有効です。回答や置換表を変えたら再復元してください。</p><button type="button" id="copyRestoredWarned" hidden disabled>警告を確認してコピー</button></div></details></div></section>
+<section class="pane restore-pane" id="restoreSourcePane"><div class="pane-head"><h2><label for="restoreInput">AIの回答</label></h2><button type="button" id="restore" class="primary">置換表から復元</button></div><textarea id="restoreInput" spellcheck="false" placeholder="◆担当者A◆や◆取引先A◆などを含む回答を貼り付け"></textarea><div class="restore-meta" id="restoreSourceMeta"><label class="checkline"><input type="checkbox" id="excludeIdentifiers" checked>確定した識別子一覧を復元結果・コピーから除外</label><p class="hint">回答原文は保持します。選択変更後は再復元してください。</p></div></section>
+<section class="pane restore-pane" id="restoreResultPane"><div class="pane-head"><h2><label for="restoredOutput">復元結果</label></h2><button type="button" id="copyRestored" class="primary" disabled>コピー</button></div><textarea id="restoredOutput" spellcheck="false" placeholder="回答や置換表を変えたら再復元してください"></textarea><div class="restore-meta" id="restoreResultMeta"><p class="status" id="restoreFreshness" role="status"></p><details class="restore-notice" id="restoreNoticeDetails"><summary id="restoreNoticeSummary" aria-live="polite">復元の説明</summary><div class="restore-notice-popup"><p class="status" id="restoreReasonDetail"></p><p class="status unknown-notice" id="unknownTokens" role="status"></p><details id="identifierListDetails"><summary>分離した識別子一覧（確認用）</summary><pre id="identifierListText" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre></details><p class="hint">本文あり・一覧のみ・両方なし・記号欠落の疑いを区別します。確定したトークンだけの一覧に限り、左の選択に従って結果から除外します。曖昧な区間は全文を保持し警告します。未登録・壊れた記号・曖昧な表記を推測で復元したり、消えた内容を補ったりしません。警告確認コピーは今回だけ有効で、回答・対応表・除外選択の変更後は再復元が必要です。</p><button type="button" id="copyRestoredWarned" hidden disabled>警告を確認してコピー</button></div></details></div></section>
 </div>
 <footer class="footer">単一HTML・外部通信なし・自動保存なし。ブラウザー拡張・IME・クリップボード履歴などによる取得や保存は防げません。</footer>
 </main>
@@ -50,14 +51,14 @@
  const types={person:'人物',company:'企業',secret:'機密',contact:'連絡先'};
  const tokenNames={person:'担当者',company:'取引先',secret:'非公開情報',contact:'連絡先'};
  const abc=n=>{let s='';for(let v=n;v>=0;v=Math.floor(v/26)-1)s=String.fromCharCode(65+v%26)+s;return s};
- const state={rules:[],dictionary:[],sourceSnapshot:'',mainTab:'black',sourceViewMode:'input',numericRatio:null,independent:new Map(),lastAuto:[],edited:false,blockedMessage:'',dictionaryGeneration:0,candidatesVisible:false,sourceRevision:0,mapRevision:0,previewSourceRevision:0,previewMapRevision:0,previewNumericSignature:'off',numericEpoch:0,previewStale:false,previewReason:'',restoreFresh:false,restoreMapRevision:-1,restoreInputSnapshot:null,restoreReason:'',copiedAnonymousOutput:null,copiedAnonymousMapRevision:-1};
+ const state={rules:[],dictionary:[],sourceSnapshot:'',mainTab:'black',sourceViewMode:'input',numericRatio:null,independent:new Map(),lastAuto:[],edited:false,blockedMessage:'',dictionaryGeneration:0,candidatesVisible:false,sourceRevision:0,mapRevision:0,previewSourceRevision:0,previewMapRevision:0,previewNumericSignature:'off',numericEpoch:0,previewStale:false,previewReason:'',restoreFresh:false,restoreMapRevision:-1,restoreInputSnapshot:null,restoreReason:'',copiedAnonymousOutput:null,copiedAnonymousMapRevision:-1,restoreExcludeSnapshot:null};
  function notify(msg,error=false){if(state.blockedMessage){msg=state.blockedMessage;error=true}else if(state.previewStale){msg=state.previewReason;error=true}$('status').textContent=msg;$('status').style.color=error?'#a63732':'#335d55'}
  function numericSignature(){return $('numericEnabled').checked?$('numericMode').value+':'+state.numericRatio+':'+state.numericEpoch:'off'}
  function previewInputsChanged(){return $('source').value!==state.sourceSnapshot||state.sourceRevision!==state.previewSourceRevision||state.mapRevision!==state.previewMapRevision||numericSignature()!==state.previewNumericSignature}
- function restoreIsFresh(){return state.restoreFresh&&state.restoreMapRevision===state.mapRevision&&state.restoreInputSnapshot===$('restoreInput').value}
+ function restoreIsFresh(){return state.restoreFresh&&state.restoreMapRevision===state.mapRevision&&state.restoreInputSnapshot===$('restoreInput').value&&state.restoreExcludeSnapshot===$('excludeIdentifiers').checked}
  function renderRestoreNoticeSummary(count){const summary=$('restoreNoticeSummary');if(typeof count==='number')summary.dataset.unknownCount=String(count);const warnings=Number(summary.dataset.unknownCount||0);summary.textContent=warnings?`警告${warnings}件・詳細`:state.restoreReason?'再復元の理由・詳細':'復元の説明';$('restoreReasonDetail').textContent=state.restoreReason}
  function syncRestoreFreshness(){
-   if(state.restoreFresh&&!restoreIsFresh()){state.restoreFresh=false;state.restoreInputSnapshot=null;state.restoreMapRevision=-1;state.restoreReason='回答または置換表が変わりました。もう一度復元してください。'}
+   if(state.restoreFresh&&!restoreIsFresh()){state.restoreFresh=false;state.restoreInputSnapshot=null;state.restoreExcludeSnapshot=null;state.restoreMapRevision=-1;state.restoreReason='回答または置換表が変わりました。もう一度復元してください。'}
    const warnings=updateUnknownTokens(),ready=restoreIsFresh()&&!!$('restoredOutput').value&&!state.blockedMessage;
    $('copyRestored').disabled=!ready||warnings.length>0;
    $('copyRestoredWarned').hidden=warnings.length===0;
@@ -65,11 +66,21 @@
    $('restoreFreshness').textContent=restoreIsFresh()?(!$('restoredOutput').value?'復元結果は空です':state.blockedMessage?'競合あり・コピー停止':warnings.length?'警告あり・通常コピー停止':'復元済み・コピー可能'):state.restoreReason?'再復元が必要・コピー停止':'';
    renderRestoreNoticeSummary(warnings.length);
  }
- function invalidateRestore(reason){state.restoreFresh=false;state.restoreMapRevision=-1;state.restoreInputSnapshot=null;state.restoreReason=$('restoreInput').value||$('restoredOutput').value?reason:'';syncRestoreFreshness()}
+ function invalidateRestore(reason){state.restoreFresh=false;state.restoreMapRevision=-1;state.restoreInputSnapshot=null;state.restoreExcludeSnapshot=null;state.restoreReason=$('restoreInput').value||$('restoredOutput').value?reason:'';syncRestoreFreshness()}
  function markPreviewStale(){state.previewStale=true;state.previewReason='原文・ルール・数値設定が変わりました。編集内容は保持しています。再生成して確認してください。'}
- function syncPreviewStatus(){$('previewNotice').hidden=!state.previewStale&&!state.blockedMessage;$('previewReason').textContent=state.blockedMessage+(state.blockedMessage&&state.previewStale?' 編集内容は保持しています。競合を解消してから再生成してください。':'')||state.previewReason;$('regeneratePreview').hidden=!state.previewStale;$('regeneratePreview').disabled=!!state.blockedMessage;$('copy').disabled=state.previewStale||!!state.blockedMessage||!$('output').value;$('numericBadge').hidden=!$('numericEnabled').checked}
+ function syncPreviewStatus(){$('previewNotice').hidden=!state.previewStale&&!state.blockedMessage;$('previewReason').textContent=state.blockedMessage+(state.blockedMessage&&state.previewStale?' 編集内容は保持しています。競合を解消してから再生成してください。':'')||state.previewReason;$('regeneratePreview').hidden=!state.previewStale;$('regeneratePreview').disabled=!!state.blockedMessage;$('copy').disabled=state.previewStale||!!state.blockedMessage||!$('output').value;$('saveTxt').disabled=$('copy').disabled;$('numericBadge').hidden=!$('numericEnabled').checked}
  function mappingChanged(){state.mapRevision++;state.copiedAnonymousOutput=null;state.copiedAnonymousMapRevision=-1;invalidateRestore('置換表が変わりました。もう一度復元してください。');if(state.edited)markPreviewStale();syncPreviewStatus()}
- function observeSourceChange(){const source=$('source').value;if(source===state.sourceSnapshot)return false;const ranges=state.rules.filter(r=>r.scope==='range').length;if(ranges){state.rules=state.rules.filter(r=>r.scope!=='range');mappingChanged();notify(`原文が変更されたので、位置指定マーカー${ranges}件を解除しました。再度マークしてください。`,true)}state.sourceSnapshot=source;state.sourceRevision++;return true}
+ function observeSourceChange(){
+   const source=$('source').value;if(source===state.sourceSnapshot)return false;
+   const ranges=state.rules.filter(r=>r.scope==='range').length;
+   const exceptions=state.rules.reduce((count,r)=>count+(r.excluded?.length||0),0);
+   if(ranges||exceptions){
+     state.rules=state.rules.filter(r=>r.scope!=='range').map(r=>({...r,excluded:[]}));
+     mappingChanged();
+     notify(`原文変更により位置指定マーカー${ranges}件と箇所解除${exceptions}件を破棄しました。全文ルールの同じ文字列は再び黒塗りします。必要な箇所を確認してください。`,true);
+   }
+   state.sourceSnapshot=source;state.sourceRevision++;return true;
+ }
  function tokenCollision(token,auto,rules=state.rules,text=$('source').value,term=''){return rules.some(r=>r.token===token?r.text!==term:(auto&&r.token.includes(token))||(r.auto&&token.includes(r.token)))||(auto&&text.includes(token))}
  function nextToken(type){let n=0,t;do{t=`◆${tokenNames[type]}${abc(n++)}◆`}while(tokenCollision(t,true));return t}
  function compileMatches(text,rules=state.rules){
@@ -78,7 +89,8 @@
      if(r.scope==='range'){
        if(r.start>=0&&r.end<=text.length&&r.start<r.end&&text.slice(r.start,r.end)===r.text)matches.push({start:r.start,end:r.end,rule:r});
      }else if(r.text){let at=0;while((at=text.indexOf(r.text,at))!==-1){
-       matches.push({start:at,end:at+r.text.length,rule:r});at+=1;
+       const excluded=(r.excluded||[]).some(range=>range.start===at&&range.end===at+r.text.length&&text.slice(range.start,range.end)===r.text);
+       if(!excluded)matches.push({start:at,end:at+r.text.length,rule:r});at+=1;
      }}
    }
    matches.sort((a,b)=>a.start-b.start||b.end-a.end);
@@ -86,6 +98,7 @@
    return {matches:conflict?[]:matches,conflict};
  }
  function validationMessage(text=$('source').value,rules=state.rules){
+   if(rules.some(r=>(r.excluded||[]).some(range=>!Number.isInteger(range.start)||!Number.isInteger(range.end)||range.start<0||range.end>text.length||range.end-range.start!==r.text.length||text.slice(range.start,range.end)!==r.text)))return '箇所解除の位置と原文が一致しません。原文を確認し、全文ルールを登録し直してください。';
    const {matches,conflict}=compileMatches(text,rules);
    if(conflict)return 'マークが重なっています。匿名化文の生成・コピー・復元を停止しました。重なるルールを一覧から削除し、必要な範囲を登録し直してください。';
    const tokenMessage='置換名が原文または別の置換名と衝突しています。匿名化文の生成・コピー・復元を停止しました。該当ルールを削除し、別の置換名で登録し直してください。';
@@ -135,9 +148,21 @@
    host.replaceChildren(fragment);
    syncSourceGeometry();
  }
- function removeRule(rule){const index=state.rules.indexOf(rule);if(index<0)return;state.rules.splice(index,1);mappingChanged();rebuild();notify(rule.scope==='range'?'選択した1か所のマークを解除しました。':'同じ文字列すべてのマークを解除しました。')}
+ function removeRule(rule){
+   const index=state.rules.indexOf(rule);if(index<0)return;
+   if(rule.scope==='all')state.rules=state.rules.filter(r=>r.text!==rule.text);
+   else state.rules.splice(index,1);
+   mappingChanged();rebuild();notify(rule.scope==='range'?'選択した1か所のマークを解除しました。':'同じ文字列すべてのマークを解除しました。');
+ }
+ function removeOccurrence(match){
+   if(match.rule.scope==='range')return removeRule(match.rule);
+   const text=$('source').value;
+   if(text!==state.sourceSnapshot||text.slice(match.start,match.end)!==match.rule.text){observeSourceChange();rebuild();return notify('原文が変わりました。マークを確認してから解除してください。',true)}
+   match.rule.excluded=[...(match.rule.excluded||[]),{start:match.start,end:match.end}];
+   mappingChanged();rebuild();notify('この1か所だけマークを解除しました。全文解除は詳細設定から行えます。');
+ }
  function removalLabel(rule){return `「${rule.text}」の${rule.scope==='range'?'この1か所':'同じ文字列すべて'}のマークを解除`}
- function renderMarkReview(){const host=$('markReview'),text=$('source').value;host.replaceChildren();if(!text){host.textContent='原文を入力すると、ここでマークを確認・解除できます。';return}let at=0;for(const m of compileMatches(text).matches){host.append(document.createTextNode(text.slice(at,m.start)));const button=document.createElement('button');button.type='button';button.className='marker-'+m.rule.type;button.textContent=text.slice(m.start,m.end);button.title=removalLabel(m.rule);button.setAttribute('aria-label',removalLabel(m.rule));button.onclick=()=>removeRule(m.rule);host.append(button);at=m.end}host.append(document.createTextNode(text.slice(at)))}
+ function renderMarkReview(){const host=$('markReview'),text=$('source').value;host.replaceChildren();if(!text){host.textContent='原文を入力すると、ここでマークを確認・解除できます。';return}let at=0;for(const m of compileMatches(text).matches){host.append(document.createTextNode(text.slice(at,m.start)));const button=document.createElement('button');button.type='button';button.className='marker-'+m.rule.type;button.textContent=text.slice(m.start,m.end);button.title='この1か所のマークを解除（全文解除は詳細設定）';button.setAttribute('aria-label','「'+m.rule.text+'」のこの1か所のマークを解除');button.onclick=()=>removeOccurrence(m);host.append(button);at=m.end}host.append(document.createTextNode(text.slice(at)))}
  function setSourceViewMode(mode){
    const source=$('source'),review=$('markReview'),hasMarks=compileMatches(source.value).matches.length>0;
    const next=mode==='remove'&&hasMarks?'remove':'input',remove=next==='remove';
@@ -178,42 +203,105 @@
    // A single replace pass never interprets a restored original as another token.
    return input.replace(new RegExp(escaped.join('|'),'g'),token=>map.get(token));
  }
- function answerBody(input){
-   let identifiers=false;const body=[];
-   for(const line of input.split(/\r?\n/)){
-     const heading=line.trim();
-     if(/^(?:#{1,6}\s*|[-*]\s*)?(?:\*\*|__|【|\[)?復元確認用識別子/.test(heading)){identifiers=true;continue}
-     // Unstructured prose after this heading stays excluded until an explicit section heading.
-     const section=/^(?:#{1,6}\s+\S|【[^【】]+】\s*$|\[[^\[\]]+\]\s*$|(?:\*\*|__)[^\r\n]+(?:\*\*|__)\s*[:：]?\s*$|[^◆【】:：]{1,40}[:：]\s*$)/.test(heading);
-     if(identifiers&&section&&!/[◆【】]/.test(heading))identifiers=false;
-     if(!identifiers)body.push(line);
+ function identifierHeading(line){
+   let label=line.trim();
+   const prefix=/^(?:#{1,6}\s*|[■●]\s*|[-*]\s+)/;
+   while(prefix.test(label))label=label.replace(prefix,'');
+   label=label.replace(/^(?:\*\*|__|【|\[)/,'');
+   if(!label.startsWith('復元確認用識別子'))return null;
+   const plain=label.replace(/\*\*|__/g,'').replace(/[】\]](?=\s*[:：]|$)/,'');
+   const exact=plain.match(/^復元確認用識別子(?:一覧|欄)?(?:[（(]参照用[）)])?\s*(?:[:：]\s*(.*))?$/);
+   return {exact:!!exact,inline:exact?.[1]||''};
+ }
+ function nextBodyHeading(line){
+   const text=line.trim();
+   if(/[◆【】]/.test(text))return false;
+   return /^(?:#{1,6}\s+\S|[■●]\s*\S|\[[^\[\]]+\]\s*$|(?:\*\*|__)[^\r\n]+(?:\*\*|__)\s*[:：]?\s*$|[^:：]{1,40}[:：]\s*$)/.test(text);
+ }
+ function identifierValue(line,map,allowBare=false){
+   let rest=line.trim().replace(/^(?:[-*•・>]\s+|\d+[.)、]\s*)/,'');
+   if(!rest)return true;
+   rest=rest.replace(/\*\*|__/g,'');
+   const tokens=[...rest.matchAll(/◆[^◆\r\n]+◆|【[^【】\r\n]+】/g)];
+   if(tokens.length){
+     const canonical=token=>map.has(token)||/^(?:◆(?:担当者|取引先|非公開情報|連絡先)[A-Z]+◆|【(?:人物|企業|機密|連絡先)[A-Z]+】)$/.test(token);
+     if(tokens.every(match=>canonical(match[0]))&&!rest.replace(/◆[^◆\r\n]+◆|【[^【】\r\n]+】/g,'').replace(/[\s、,;；:：・|｜/]/g,''))return true;
    }
-   return body.join('\n');
+   if(allowBare){
+     const names=[...map.keys()].map(token=>token.slice(1,-1)).sort((a,b)=>b.length-a.length);
+     for(const name of names)rest=rest.split(name).join('');
+     return !rest.replace(/[\s、,;；:：・|｜/]/g,'');
+   }
+   return false;
+ }
+ function parseAnswer(input,map=restorationContext().map){
+   const lines=[];let offset=0;
+   for(const match of input.matchAll(/[^\r\n]*(?:\r\n|\r|\n|$)/g)){
+     if(!match[0])continue;
+     lines.push({raw:match[0],text:match[0].replace(/[\r\n]+$/,''),start:offset,end:offset+match[0].length});offset+=match[0].length;
+   }
+   const safe=[],ambiguous=[],body=[],list=[];
+   for(let index=0;index<lines.length;){
+     const heading=identifierHeading(lines[index].text);
+     if(!heading){body.push(lines[index].raw);index++;continue}
+     let end=index+1;
+     while(end<lines.length&&!identifierHeading(lines[end].text)&&!nextBodyHeading(lines[end].text))end++;
+     const content=lines.slice(index+1,end),values=heading.inline?[heading.inline,...content.map(line=>line.text)]:content.map(line=>line.text);
+     const nonempty=values.filter(value=>value.trim());
+     const certain=heading.exact&&nonempty.length>0&&nonempty.every(value=>identifierValue(value,map));
+     const startOffset=lines[index].start,endOffset=lines[end-1].end;
+     if(certain)safe.push({start:startOffset,end:endOffset,text:input.slice(startOffset,endOffset)});
+     else ambiguous.push(input.slice(startOffset,endOffset));
+     if(heading.inline)list.push(heading.inline);
+     // A token-only value remains appendix evidence even in an ambiguous section.
+     // Prose stays in the check body and is never removed by the copy projection.
+     for(const line of content){
+       if(identifierValue(line.text,map,true))list.push(line.raw);
+       else body.push(line.raw);
+     }
+     index=end;
+   }
+   let copyBody='',at=0;
+   for(const section of safe){copyBody+=input.slice(at,section.start);at=section.end}
+   copyBody+=input.slice(at);
+   return {body:body.join(''),list:list.join('\n'),safe,ambiguous,copyBody};
+ }
+ function answerBody(input){return parseAnswer(input).body}
+ function withoutKnownTokens(text,map){
+   const masking=new Map([...map.keys()].map(token=>[token,' ']));
+   return restoreText(text,masking);
+ }
+ function hasBareName(text,token){
+   const name=token.slice(1,-1),escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+   return new RegExp(`(?<![A-Za-z0-9_])${escaped}(?![A-Za-z0-9_])`,'u').test(text);
  }
  function restorationWarnings(){
    const input=$('restoreInput').value,output=$('restoredOutput').value,{map}=restorationContext(),warnings=[];
-   const distinct=items=>[...new Set(items)];
-   const unknown=distinct(tokenSpans(input).filter(s=>!s.valid||!map.has(s.token)).map(s=>s.token));
+   const parsed=parseAnswer(input,map),distinct=items=>[...new Set(items)];
+   const unknown=distinct(tokenSpans(input).filter(span=>!span.valid||!map.has(span.token)).map(span=>span.token));
    if(unknown.length)warnings.push(`未登録・壊れたトークン${unknown.length}件：${unknown.join('、')}（そのまま残します）`);
    if(restoreIsFresh()){
-     const remaining=distinct(tokenSpans(output).map(s=>s.token));
+     const remaining=distinct(tokenSpans(output).map(span=>span.token));
      if(remaining.length)warnings.push(`復元結果に残るトークン${remaining.length}件：${remaining.join('、')}`);
    }
-   // Mask complete or malformed marker spans before checking bare known names.
-   const body=answerBody(input),spans=tokenSpans(body);let bare='',at=0;
-   for(const span of spans){bare+=body.slice(at,span.start)+' ';at=span.end}bare+=body.slice(at);
-   const bareNames=[];
-   for(const token of map.keys()){
-     const name=token.slice(1,-1),escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-     if(new RegExp(`(?<![A-Za-z0-9_])${escaped}(?![A-Za-z0-9_])`,'u').test(bare))bareNames.push(name);
-   }
-   if(bareNames.length)warnings.push(`囲み記号のない識別子${bareNames.length}件：${bareNames.join('、')}（自動復元しません）`);
+   if(parsed.ambiguous.length)warnings.push(`識別子一覧の範囲が曖昧な区間${parsed.ambiguous.length}件：本文を誤って削らないため全文を保持しました。回答原文を確認してください。`);
+   const bareBody=withoutKnownTokens(parsed.body,map),bareList=withoutKnownTokens(parsed.list,map);
+   const changed=[...map.keys()].filter(token=>hasBareName(bareBody,token)||hasBareName(bareList,token));
+   if(changed.length)warnings.push(`囲み記号の欠落・改変が疑われる識別子${changed.length}件：${changed.join('、')}（自動復元しません）`);
    if(input){
      const baseline=state.copiedAnonymousMapRevision===state.mapRevision&&state.copiedAnonymousOutput!==null?state.copiedAnonymousOutput:$('output').value;
      const used=[...map.keys()].filter(token=>baseline.includes(token));
-     const missing=used.filter(token=>!body.includes(token));
-     if(missing.length)warnings.push(`回答本文から消えた識別子${missing.length}件：${missing.join('、')}（識別子一覧だけの出現は本文に数えず、自動補完しません）`);
+     const onlyList=[],absent=[];
+     for(const token of used){
+       if(parsed.body.includes(token))continue;
+       if(parsed.list.includes(token))onlyList.push(token);
+       else if(!changed.includes(token))absent.push(token);
+     }
+     if(onlyList.length)warnings.push(`回答本文になく識別子一覧にのみ存在${onlyList.length}件：${onlyList.join('、')}（本文の成功とは数えません）`);
+     if(absent.length)warnings.push(`回答本文・識別子一覧の両方から消えた識別子${absent.length}件：${absent.join('、')}（要約による省略の可能性もあります。自動補完しません）`);
    }
+   $('identifierListText').textContent=parsed.safe.map(section=>restoreText(section.text,map)).join('\n');
+   $('identifierListDetails').hidden=parsed.safe.length===0;
    return warnings;
  }
  function updateUnknownTokens(){
@@ -236,12 +324,12 @@
    renderRules();renderHighlights();renderMarkReview();setSourceViewMode(state.sourceViewMode);updateUnknownTokens();syncPreviewStatus();syncRestoreFreshness();
    if(state.blockedMessage||state.previewStale)notify('',true);else if(wasBlocked)notify('競合が解消されたため、匿名化文を再生成しました。内容を確認してください。');
  }
- function globalRuleResult(text,type,alias=''){
+ function globalRuleResult(text,type,alias='',resetExclusions=true){
    text=text.trim();alias=alias.trim();if(!text)return {status:'rejected',message:'文字列が空です。'};if(text.length>180)return {status:'rejected',message:'1ルールは180文字以内にしてください。'};
    const existing=state.rules.find(r=>r.text===text);if(existing&&alias&&alias!==existing.token)return {status:'rejected',message:'同じ文字列は既存の仮名を共用します。別の置換名は登録できません。'};
-   if(state.rules.some(r=>r.text===text&&r.scope==='all'))return {status:'already',message:`「${text}」は同じ仮名で全文マーク済みです。`};
+   if(state.rules.some(r=>r.text===text&&r.scope==='all'&&(!resetExclusions||!r.excluded?.length)))return {status:'already',message:`「${text}」は同じ仮名で全文マーク済みです。`};
    const token=existing?existing.token:alias||nextToken(type);if(/[\r\n]/.test(token))return {status:'rejected',message:'置換名に改行は使えません。'};
-   return registerRule({text,token,type:existing?existing.type:type,auto:existing?existing.auto:!alias||restorableToken(alias),scope:'all'},true);
+   return registerRule({text,token,type:existing?existing.type:type,auto:existing?existing.auto:!alias||restorableToken(alias),scope:'all',excluded:[]},true);
  }
  function createRule(text,type,alias=''){const result=globalRuleResult(text,type,alias);if(result.status!=='rejected')setSourceViewMode('input');notify(result.message,result.status==='rejected');return result.status!=='rejected'}
  function markRange(){setSourceViewMode('input');const el=$('source');let start=el.selectionStart,end=el.selectionEnd;
@@ -253,7 +341,7 @@
    const text=el.value.slice(start,end);
    const existing=state.rules.find(r=>r.text===text),alias=$('manualAlias').value.trim();
    if(existing&&alias&&alias!==existing.token)return notify('同じ文字列は既存の仮名を共用します。別の置換名は登録できません。',true);
-   if(state.rules.some(r=>r.text===text&&(r.scope==='all'||(r.start===start&&r.end===end)))){notify('選択部分は同じ仮名でマーク済みです。');return true}
+   if(state.rules.some(r=>r.text===text&&((r.scope==='all'&&!r.excluded?.some(range=>range.start===start&&range.end===end))||(r.scope==='range'&&r.start===start&&r.end===end)))){notify('選択部分は同じ仮名でマーク済みです。');return true}
    const type=existing?existing.type:$('manualType').value,token=existing?existing.token:alias||nextToken(type);
    if(/[\r\n]/.test(token))return notify('置換名に改行は使えません。',true);
    const result=registerRule({text,token,type,auto:existing?existing.auto:!alias||restorableToken(alias),scope:'range',start,end});
@@ -261,7 +349,7 @@
    $('manualAlias').value='';
    notify(`選択範囲を蛍光ペンでマークしました（${types[type]}）。`);return true;
  }
- function renderRules(){const el=$('rules');el.replaceChildren();$('ruleCount').textContent=state.rules.length+'件';if(!state.rules.length){const s=document.createElement('span');s.className='small';s.textContent='まだ登録されていません。';el.append(s);return}state.rules.forEach(r=>{const div=document.createElement('div');div.className='rule';const p=document.createElement('span');p.className='pair';const from=document.createElement('b');from.textContent=r.text;const to=document.createElement('span');to.className='pill';to.textContent=r.token;p.append(from,' → ',to);if(r.scope==='range'){const one=document.createElement('span');one.className='small';one.textContent=' · 選択箇所のみ';p.append(one)}const btn=document.createElement('button');btn.type='button';btn.textContent='削除';btn.title=removalLabel(r);btn.setAttribute('aria-label',removalLabel(r));btn.onclick=()=>removeRule(r);div.append(p,btn);el.append(div)})}
+ function renderRules(){const el=$('rules');el.replaceChildren();$('ruleCount').textContent=state.rules.length+'件';if(!state.rules.length){const s=document.createElement('span');s.className='small';s.textContent='まだ登録されていません。';el.append(s);return}state.rules.forEach(r=>{const div=document.createElement('div');div.className='rule';const p=document.createElement('span');p.className='pair';const from=document.createElement('b');from.textContent=r.text;const to=document.createElement('span');to.className='pill';to.textContent=r.token;p.append(from,' → ',to);if(r.scope==='range'){const one=document.createElement('span');one.className='small';one.textContent=' · 選択箇所のみ';p.append(one)}const btn=document.createElement('button');btn.type='button';btn.textContent=r.scope==='all'?'全文解除':'この箇所を解除';btn.title=removalLabel(r);btn.setAttribute('aria-label',removalLabel(r));btn.onclick=()=>removeRule(r);div.append(p,btn);el.append(div)})}
  function currentSelection(){const el=$('source');let v=el.value.slice(el.selectionStart,el.selectionEnd);return v.trim()}
  function showSelection(){const s=currentSelection();$('selection').textContent=s;$('selection').title=s;$('manualToolbar').hidden=!s||state.sourceViewMode!=='input';syncSourceGeometry()}
  function scanCandidates(text,includeRegistered=false){let ret=new Map();function put(t,type,registered=false){if(!registered){t=t.trim();if(type!=='company')t=t.replace(/[、。）」』]+$/g,'')}if(!t||t.length>(registered?180:100)||(!includeRegistered&&state.rules.some(r=>r.text===t))||ret.has(t))return;ret.set(t,{text:t,type})}
@@ -283,9 +371,9 @@
    return [...ret.values()].slice(0,90);
  }
  function renderCandidates(){const list=$('candidates');list.replaceChildren();$('candidatePanel').hidden=!state.candidatesVisible||state.mainTab!=='black';const cs=state.lastAuto;if(!cs.length){const sp=document.createElement('span');sp.className='small';sp.textContent='候補なし。手動で文字列を選択できます。';list.append(sp);return}for(const c of cs){const box=document.createElement('span');box.className='candidate';const type=document.createElement('span');type.className='cat';type.textContent=types[c.type];const word=document.createElement('b');word.textContent=c.text;word.title=c.text;const btn=document.createElement('button');btn.type='button';btn.textContent='置換';btn.onclick=()=>{if(createRule(c.text,c.type)){state.lastAuto=state.lastAuto.filter(x=>x!==c);if(!state.lastAuto.length)state.candidatesVisible=false;renderCandidates()}};box.append(type,word,btn);if(c.reason){const reason=document.createElement('span');reason.className='small';reason.textContent=c.reason;box.append(reason)}list.append(box)}}
- function autoAnonymize(){const candidates=scanCandidates($('source').value,true),rejected=[];let added=0,already=0;const initialError=validationMessage();for(const c of candidates){const result=initialError?{status:'rejected',message:initialError}:globalRuleResult(c.text,c.type);if(result.status==='added')added++;else if(result.status==='already')already++;else rejected.push({...c,reason:result.message})}state.lastAuto=rejected;state.candidatesVisible=rejected.length>0;renderCandidates();rebuild();setSourceViewMode('remove');const summary=`検出候補${candidates.length}件：追加${added}件／登録済み${already}件／要確認${rejected.length}件。${rejected.length?'要確認の候補は一覧に残しています。':''}検出漏れがないか目視確認してください。`;$('autoSummary').textContent=summary;notify(summary,rejected.length>0);return {added,already,rejected:rejected.length}}
+ function autoAnonymize(){const candidates=scanCandidates($('source').value,true),rejected=[];let added=0,already=0;const initialError=validationMessage();for(const c of candidates){const result=initialError?{status:'rejected',message:initialError}:globalRuleResult(c.text,c.type,'',false);if(result.status==='added')added++;else if(result.status==='already')already++;else rejected.push({...c,reason:result.message})}state.lastAuto=rejected;state.candidatesVisible=rejected.length>0;renderCandidates();rebuild();setSourceViewMode('remove');const summary=`検出候補${candidates.length}件：追加${added}件／登録済み${already}件／要確認${rejected.length}件。${rejected.length?'要確認の候補は一覧に残しています。':''}既存の箇所解除は保持しました。検出漏れがないか目視確認してください。`;$('autoSummary').textContent=summary;notify(summary,rejected.length>0);return {added,already,rejected:rejected.length}}
  function renderDict(){const div=$('dictList');div.replaceChildren();if(!state.dictionary.length){let el=document.createElement('span');el.className='small';el.textContent='追加辞書は空です';div.append(el);return}state.dictionary.forEach((e,i)=>{let box=document.createElement('span');box.className='candidate';let t=document.createElement('b');t.textContent=e.text;let b=document.createElement('button');b.textContent='×';b.setAttribute('aria-label',e.text+'を辞書から削除');b.onclick=()=>{state.dictionaryGeneration++;state.dictionary.splice(i,1);renderDict()};box.append(t,b);div.append(box)})}
- async function copyValue(id,allowWarnings=false){
+ function exportPreflight(id,allowWarnings=false){
    if($('source').value!==state.sourceSnapshot){observeSourceChange();markPreviewStale()}
    state.blockedMessage=validationMessage();if(id==='output'&&previewInputsChanged())markPreviewStale();
    if(state.blockedMessage){if(!state.edited&&!state.previewStale)$('output').value='';$('restoredOutput').value='';invalidateRestore('競合を解消し、もう一度復元してください。');syncPreviewStatus();return notify(state.blockedMessage,true)}
@@ -295,13 +383,32 @@
      if(!restoreIsFresh()){invalidateRestore('回答または置換表の変更後は、もう一度復元してください。');return notify('復元結果が未更新です。もう一度復元してください。',true)}
      if(restorationWarnings().length&&!allowWarnings){$('restoreNoticeDetails').open=true;return notify('復元警告を詳細で確認してください。通常コピーは停止しています。',true)}
    }
-   const value=$(id).value,copyMapRevision=state.mapRevision,copyGeneration=state.dictionaryGeneration;
-   if(!value)return notify('コピー対象が空です。',true);
+   const value=$(id).value;
+   if(!value){notify('コピー・保存対象が空です。',true);return null}
+   return value;
+ }
+ function recordAnonymousPayload(value,mapRevision,generation){
+   if(generation!==state.dictionaryGeneration||mapRevision!==state.mapRevision)return;
+   state.copiedAnonymousOutput=value;state.copiedAnonymousMapRevision=mapRevision;syncRestoreFreshness();
+ }
+ function saveAnonymousTxt(){
+   const value=exportPreflight('output');if(value===null||value===undefined)return;
+   try{
+     const blob=new Blob([value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob);
+     const link=document.createElement('a');link.href=url;link.download='kimitsu-mask-anonymous.txt';link.click();
+     setTimeout(()=>URL.revokeObjectURL(url),1000);
+     recordAnonymousPayload(value,state.mapRevision,state.dictionaryGeneration);
+     notify('匿名化文のTXT保存を開始しました。保存先はブラウザー設定に従います。機密情報の残留と、復元には現在の置換表が必要なことを確認してください。');
+   }catch(error){notify('TXT保存を開始できませんでした。ブラウザーの設定を確認してください。',true)}
+ }
+ async function copyValue(id,allowWarnings=false){
+   const value=exportPreflight(id,allowWarnings);if(value===null||value===undefined)return;
+   const copyMapRevision=state.mapRevision,copyGeneration=state.dictionaryGeneration;
    try{
      if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(value);
      else{const el=$(id);el.focus();el.select();const ok=document.execCommand('copy');if(!ok)throw Error('copy')}
      if(id==='output'&&copyGeneration===state.dictionaryGeneration&&copyMapRevision===state.mapRevision){
-       state.copiedAnonymousOutput=value;state.copiedAnonymousMapRevision=copyMapRevision;syncRestoreFreshness();
+       recordAnonymousPayload(value,copyMapRevision,copyGeneration);
      }
      notify('クリップボードへコピーしました。貼り付け先の入力規程も確認してください。');
    }catch(e){notify('自動コピー不可。テキスト欄を選択して Ctrl+C でコピーしてください。',true)}
@@ -313,28 +420,30 @@
    $('candidates').textContent='原文が変わりました。「候補を探す」を再実行してください。';
  });
  $('source').addEventListener('scroll',syncSourceGeometry);
- $('markSelection').onclick=markRange;for(const evt of ['select','click','keyup','mouseup'])$('source').addEventListener(evt,showSelection);
- $('addSelection').onclick=()=>{const s=currentSelection();if(!s)return notify('まず原文の文字列を選択してください。',true);const ok=createRule(s,$('manualType').value,$('manualAlias').value);if(ok){$('manualAlias').value='';showSelection()}};
+ $('addSelection').onclick=markRange;for(const evt of ['select','click','keyup','mouseup'])$('source').addEventListener(evt,showSelection);
+ $('markSelection').onclick=()=>{const s=currentSelection();if(!s)return notify('まず原文の文字列を選択してください。',true);const ok=createRule(s,$('manualType').value,$('manualAlias').value);if(ok){$('manualAlias').value='';showSelection()}};
  $('scan').onclick=()=>{state.lastAuto=scanCandidates($('source').value);state.candidatesVisible=true;renderCandidates();notify(`${state.lastAuto.length}件の候補を検出しました。内容を見て必要なものだけ置換してください。`)};
  $('autoAnonymize').onclick=autoAnonymize;
  $('sourceEditMode').onclick=()=>setSourceViewMode('input');$('sourceRemoveMode').onclick=()=>setSourceViewMode('remove');
  $('clearRules').onclick=()=>{if(state.rules.length){state.rules=[];mappingChanged()}rebuild();notify('置換ルールをすべて消去しました。')};
  $('demo').onclick=()=>{if(state.rules.length){state.rules=[];mappingChanged()}$('source').value='山田太郎様\n\n株式会社青葉技研との打ち合わせについて、来週の日程を調整したいと思います。\n売上は1,200万円、利益は300万円でした。\n連絡先：taro.yamada@example.com';observeSourceChange();state.lastAuto=[];state.candidatesVisible=false;$('candidatePanel').hidden=true;state.numericRatio=null;state.numericEpoch++;state.independent.clear();rebuild();$('candidates').textContent='「候補を探す」で検出できます。';notify('架空のサンプルを読み込みました。')};
  $('clear').onclick=()=>{
+   if(!window.confirm('原文、置換表、追加辞書、復元作業（回答・結果）、匿名化文など、現在の作業データをすべて消去します。よろしいですか？'))return;
    state.dictionaryGeneration++;
    for(const id of ['source','output','restoreInput','restoredOutput','manualAlias','dictTerm','dictImport']){$(id).value='';if(id!=='dictImport'){$(id).selectionStart=0;$(id).selectionEnd=0}}
-   state.rules=[];state.dictionary=[];state.lastAuto=[];state.numericRatio=null;state.independent.clear();state.sourceSnapshot='';state.edited=false;state.blockedMessage='';state.sourceViewMode='input';state.candidatesVisible=false;state.sourceRevision=0;state.mapRevision=0;state.previewSourceRevision=0;state.previewMapRevision=0;state.previewNumericSignature='off';state.numericEpoch=0;state.previewStale=false;state.previewReason='';state.restoreFresh=false;state.restoreMapRevision=-1;state.restoreInputSnapshot=null;state.restoreReason='';state.copiedAnonymousOutput=null;state.copiedAnonymousMapRevision=-1;$('markReview').scrollTop=0;$('markReview').scrollLeft=0;$('candidatePanel').hidden=true;$('advancedSettings').open=false;$('manualOptions').open=false;$('restoreNoticeDetails').open=false;$('restoreReasonDetail').textContent='';
+   state.rules=[];state.dictionary=[];state.lastAuto=[];state.numericRatio=null;state.independent.clear();state.sourceSnapshot='';state.edited=false;state.blockedMessage='';state.sourceViewMode='input';state.candidatesVisible=false;state.sourceRevision=0;state.mapRevision=0;state.previewSourceRevision=0;state.previewMapRevision=0;state.previewNumericSignature='off';state.numericEpoch=0;state.previewStale=false;state.previewReason='';state.restoreFresh=false;state.restoreMapRevision=-1;state.restoreInputSnapshot=null;state.restoreExcludeSnapshot=null;state.restoreReason='';state.copiedAnonymousOutput=null;state.copiedAnonymousMapRevision=-1;$('markReview').scrollTop=0;$('markReview').scrollLeft=0;$('candidatePanel').hidden=true;$('advancedSettings').open=false;$('manualOptions').open=false;$('restoreNoticeDetails').open=false;$('restoreReasonDetail').textContent='';$('excludeIdentifiers').checked=true;$('identifierListDetails').open=false;$('identifierListText').textContent='';
    $('manualType').value='secret';$('dictType').value='company';$('numericMode').value='ratio';$('numericEnabled').checked=false;
    $('source').scrollTop=0;$('source').scrollLeft=0;$('candidates').textContent='候補検索は未実行です';showSelection();renderDict();setMainTab('black');rebuild(true);
    notify('入力・ルール・辞書・復元用文章を消去しました。');
  };
  $('tabText').onclick=()=>setMainTab('black');$('tabRestore').onclick=()=>setMainTab('restore');$('numericEnabled').onchange=()=>rebuild();$('numericMode').onchange=()=>rebuild();$('reroll').onclick=()=>{state.numericRatio=newRatio();state.numericEpoch++;state.independent.clear();rebuild();notify('ダミー化の乱数を更新しました。')};
  $('regeneratePreview').onclick=()=>{observeSourceChange();state.blockedMessage=validationMessage();if(state.blockedMessage){syncPreviewStatus();return notify(state.blockedMessage,true)}rebuild(true);notify('匿名化文を再生成しました。内容を確認してください。')};
- $('copy').onclick=()=>copyValue('output');$('copyRestored').onclick=()=>copyValue('restoredOutput');
+ $('saveTxt').onclick=saveAnonymousTxt;$('copy').onclick=()=>copyValue('output');$('copyRestored').onclick=()=>copyValue('restoredOutput');
  $('copyRestoredWarned').onclick=()=>copyValue('restoredOutput',true);
  $('restoreInput').addEventListener('input',()=>{updateUnknownTokens();invalidateRestore('回答が変わりました。もう一度復元してください。')});
  $('restoredOutput').addEventListener('input',syncRestoreFreshness);
- $('restore').onclick=()=>{if($('source').value!==state.sourceSnapshot){observeSourceChange();rebuild()}updateUnknownTokens();state.blockedMessage=validationMessage();if(state.blockedMessage){if(!state.edited&&!state.previewStale)$('output').value='';$('restoredOutput').value='';invalidateRestore('競合を解消し、もう一度復元してください。');syncPreviewStatus();return notify(state.blockedMessage,true)}const {map}=restorationContext();$('restoredOutput').value=restoreText($('restoreInput').value,map);state.restoreFresh=true;state.restoreMapRevision=state.mapRevision;state.restoreInputSnapshot=$('restoreInput').value;state.restoreReason='';syncRestoreFreshness();notify('現在の置換表にある自動トークンを復元しました。内容を確認してください。')};
+ $('excludeIdentifiers').addEventListener('change',()=>invalidateRestore('一覧の除外選択が変わりました。もう一度復元してください。'));
+ $('restore').onclick=()=>{if($('source').value!==state.sourceSnapshot){observeSourceChange();rebuild()}updateUnknownTokens();state.blockedMessage=validationMessage();if(state.blockedMessage){if(!state.edited&&!state.previewStale)$('output').value='';$('restoredOutput').value='';invalidateRestore('競合を解消し、もう一度復元してください。');syncPreviewStatus();return notify(state.blockedMessage,true)}const {map}=restorationContext(),parsed=parseAnswer($('restoreInput').value,map);$('restoredOutput').value=restoreText($('excludeIdentifiers').checked?parsed.copyBody:$('restoreInput').value,map);state.restoreFresh=true;state.restoreMapRevision=state.mapRevision;state.restoreInputSnapshot=$('restoreInput').value;state.restoreExcludeSnapshot=$('excludeIdentifiers').checked;state.restoreReason='';syncRestoreFreshness();notify('現在の置換表にある自動トークンを復元しました。内容を確認してください。')};
  $('dictAdd').onclick=()=>{const t=$('dictTerm').value.trim(),type=$('dictType').value;if(!t)return notify('辞書に追加する語句を入力してください。',true);if(state.dictionary.length>=2000)return notify('辞書の上限は2000件です。',true);if(state.dictionary.some(e=>e.text===t))return notify('辞書に登録済みです。',true);state.dictionaryGeneration++;state.dictionary.push({text:t,type});$('dictTerm').value='';renderDict();notify('追加辞書に登録しました。候補検索で使えます。')};
  $('dictExport').onclick=()=>{const content=JSON.stringify({format:'kimitsu-mask-dictionary',version:1,entries:state.dictionary},null,2);const url=URL.createObjectURL(new Blob([content],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='kimitsu-mask-dictionary.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notify('辞書をJSONファイルで保存しました。このファイル自体も機密情報として扱ってください。')};
  $('dictImportBtn').onclick=()=>$('dictImport').click();$('dictImport').onchange=async e=>{const generation=++state.dictionaryGeneration,f=e.target.files?.[0];if(!f)return;if(f.size>512000){notify('辞書ファイルは512KB以下にしてください。',true);e.target.value='';return}try{const content=await f.text();if(generation!==state.dictionaryGeneration)return;const raw=JSON.parse(content);if(raw.format!=='kimitsu-mask-dictionary'||raw.version!==1||!Array.isArray(raw.entries)||raw.entries.length>2000)throw Error('invalid');const arr=[];for(const item of raw.entries){if(typeof item.text!=='string'||!item.text.trim()||item.text.length>100||!['person','company','secret'].includes(item.type))throw Error('invalid item');if(!arr.some(e=>e.text===item.text.trim()))arr.push({text:item.text.trim(),type:item.type})}state.dictionary=arr;renderDict();notify(`${arr.length}件の辞書を読み込みました。`)}catch(_){if(generation===state.dictionaryGeneration)notify('辞書形式が不正です。既存の辞書は変更していません。',true)}finally{if(generation===state.dictionaryGeneration)e.target.value=''}};
